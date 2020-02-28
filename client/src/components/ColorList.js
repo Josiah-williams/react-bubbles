@@ -1,5 +1,7 @@
-import React, { useState,useEffect } from "react";
-import {axiosWithAuth} from './utils/axiosWithAuth';
+import React, { useState } from "react";
+import axios from 'axios'
+import axiosWithAuth from "./utils/axiosWithAuth";
+
 
 const initialColor = {
   color: "",
@@ -11,42 +13,35 @@ const ColorList = ({ colors, updateColors }) => {
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
 
-  const [paint,setPaint]=useState();
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
-    console.log(color);
-    setPaint(color);
-  };
   };
 
   const saveEdit = e => {
-    console.log(colorToEdit)
-    console.log(colors);
-
+    e.preventDefault();
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
-    if(paint.color!==colorToEdit.color){
-      // ///ADD
-        axiosWithAuth().post("api/colors", colorToEdit)
-        updateColors([...colors]);
-      }else{
-      // //EDIT
-        axiosWithAuth().put(`api/colors/${colorToEdit.id}`, colorToEdit)
-        updateColors([...colors]);
-      }
-  
-    };
-  
+    axiosWithAuth()
+    .put("colors/" + colorToEdit.id, colorToEdit)
+    .then (res => {
+      setEditing(false);
+})
+.catch (err => {
+  console.log("Error: ", err);
+})
+
+  };
+
 
   const deleteColor = color => {
-    const deleteColor = (color) => {
-      const zapper=colors.filter(item=>{return ((item.color!==color.color)&&(item.code.hex!==color.code.hex))})
-      updateColors(zapper)
     // make a delete request to delete this color
-    axiosWithAuth().delete(`api/colors/${color.id}`)
-    // console.log(colors);
+    axiosWithAuth()
+      .delete(`/colors/${color.id}`, color)
+      .then(res => console.log(res))
+      .catch(err => console.log("Error:", err));
+
   };
 
   return (
